@@ -1,0 +1,4 @@
+
+1. target for task.
+2. add delete and update task
+3. all intergace and types in a place

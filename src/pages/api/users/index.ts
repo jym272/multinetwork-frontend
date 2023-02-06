@@ -1,9 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { newPostUrl } from '@src/utils';
+import { usersApiUrl } from '@src/utils';
 import { PostData } from '@src/types';
 
 export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-    const response = await fetch(newPostUrl, {
+    const route = req.headers['users-route'] as 'login' | 'signup';
+
+    const response = await fetch(`${usersApiUrl}/${route}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -11,7 +13,8 @@ export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         body: JSON.stringify(req.body)
     });
     const data = (await response.json()) as PostData;
-    res.status(200).json(data);
+    const statusCode = response.status;
+    res.status(statusCode).json(data);
 };
 
 export default handler;
