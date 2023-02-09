@@ -25,9 +25,10 @@ const Label = styled.label<{ $inputFocus: boolean; $error: boolean }>`
         css`
             transform: translate(19px, 4px);
             font-size: 10px;
-            color: rgb(45, 51, 58);
-            background-color: #fff;
+            color: #435757;
+            background-color: #ffffff;
             padding: 0 3px;
+            border-radius: 3px;
         `}
     ${props =>
         props.$error &&
@@ -37,7 +38,7 @@ const Label = styled.label<{ $inputFocus: boolean; $error: boolean }>`
 `;
 
 const Input = styled.input<{ $error: boolean }>`
-    width: 330px;
+    width: 500px;
     height: 35px;
     margin: 10px;
     border-radius: 5px;
@@ -45,40 +46,42 @@ const Input = styled.input<{ $error: boolean }>`
     padding: 12px;
     z-index: 2;
     outline: none;
+    font-family: 'Roboto Mono', monospace;
 
     &:hover {
-        border: 1px solid #07968b;
+        //border: 1px solid #172a2a;
     }
     &:focus {
-        border: 2px solid #07968b;
+        //border: 2px solid #172a2a;
     }
     ${props =>
         props.$error &&
         css`
-            border: 1px solid #ff0000;
+            border: 2px solid #ff0000;
         `}
 `;
 
 const TextArea = styled.textarea<{ $error: boolean }>`
-    width: 330px;
-    height: 100px;
+    width: 500px;
+    height: 60px;
     margin: 10px;
     border-radius: 5px;
     border: 1px solid #dfd9d9;
     padding: 12px;
     z-index: 2;
     outline: none;
+    resize: none;
 
     &:hover {
-        border: 1px solid #07968b;
+        //border: 1px solid #172a2a;
     }
     &:focus {
-        border: 2px solid #07968b;
+        //border: 2px solid #172a2a;
     }
     ${props =>
         props.$error &&
         css`
-            border: 1px solid #ff0000;
+            border: 2px solid #ff0000;
         `}
 `;
 
@@ -88,7 +91,7 @@ const capitalize = (s: string) => {
 
 const ErrorMessage = styled.div`
     position: absolute;
-    color: #ff0000;
+    color: #ef6c1e;
     font-size: 11px;
     bottom: 3%;
     left: 4%;

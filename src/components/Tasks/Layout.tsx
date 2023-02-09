@@ -6,25 +6,39 @@ const LayoutContainer = styled.div`
     display: block;
     height: 100vh;
     width: 100vw;
-    background-color: #f7f0f0;
+    background-color: #172a2a;
+    position: relative;
+    .simplebar-content-wrapper {
+        //border-right: 1px solid #435757;
+        //display: grid;
+        padding-right: 0 !important;
+    }
 `;
 
 const LogoutContainer = styled.div`
     display: flex;
     justify-content: flex-end;
     padding: 10px;
-    background: azure;
+    background: #172a2a;
 `;
 
 const LogoutButton = styled.div`
+    display: flex;
+    align-items: center;
     cursor: pointer;
-    padding: 10px;
     border-radius: 5px;
-    background-color: #f7f0f0;
-    color: #000;
-    font-weight: bold;
+    color: #d3fbd8;
+    font-size: 14px;
+    padding: 10px 15px;
+    margin-right: 10px;
+    box-shadow: 0 0 3px 0 #000000;
+    height: 36px;
+    user-select: none;
+    font-family: 'Roboto Mono', monospace;
+    transition: all 0.3s ease-in-out;
+
     &:hover {
-        background-color: #000;
+        background-color: #d96326;
         color: #fff;
     }
 `;

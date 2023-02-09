@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React from 'react';
+import React, { useState } from 'react';
 import { CommentData } from '@src/types';
 import { useDispatch } from 'react-redux';
 import { AppDispatch, newComment } from '@src/store';
@@ -42,7 +42,7 @@ const Form = styled.form`
 
 export const SubmitComment = ({ postId }: { postId: number }) => {
     const dispatch: AppDispatch = useDispatch();
-    const [commentText, setCommentText] = React.useState<string>('');
+    const [commentText, setCommentText] = useState<string>('');
 
     const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

@@ -24,6 +24,7 @@
         "react-dom": "18.2.0",
         "react-hook-form": "^7.43.0",
         "react-redux": "^8.0.5",
+        "simplebar-react": "^3.2.0",
         "styled-components": "^5.3.6",
         "swr": "^2.0.1"
     },

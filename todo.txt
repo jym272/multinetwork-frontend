@@ -1,4 +1,13 @@
 
-1. target for task.
-2. add delete and update task
-3. all intergace and types in a place
+1. refactor types
+8. transparencia en el scroll
+10. corregir donde apar3ece el menu, si overflow, debe aparecer al lado libre
+4. span Number for grid row
+5. color de delete task trodo
+
+5. cuando se le da click al conainer agreagarle un z index superrior para que aparezca por encima de todo
+ mientras se realiza la animacion
+
+ 6. guardar los saltos de lineas en el texto de la tarea
+ 7. verificar siempre que el token se encuentre actualizado, de otra manera a login
+  o actualizarlo en el backend cada vez que se realiza una operacion importante

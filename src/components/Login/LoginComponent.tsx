@@ -314,7 +314,7 @@ export const LoginComponent = () => {
         }
 
         localStorage.setItem('token', token ?? result.token!);
-        return router.push('/tasks');
+        await router.push('/tasks');
     };
     const changeToSignUpHandler = () => {
         setActivateFadeOut(true);

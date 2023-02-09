@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, NewTask, Task, TaskList } from '@src/components';
+import { Layout, NewTask, Task, TaskList, UpdateTask } from '@src/components';
 import useSWR, { Fetcher } from 'swr';
 import { useRouter } from 'next/router';
 
-// const fetchWithToken1 = (url: string, token: string) =>
-//     fetch(url, {
-//         headers: {
-//             Authorization: `Bearer ${token}`,
-//             'tasks-route': 'get-all'
-//         }
-//     }).then(r => r.json() as Promise<Task[]>);
+import SimpleBar from 'simplebar-react';
+import 'simplebar-react/dist/simplebar.min.css';
 
 const fetchWithToken = async (url: string, token: string) => {
     const res = await fetch(url, {
@@ -50,15 +45,23 @@ const Task = () => {
         setShouldFetch(true);
         setToken(localToken);
     }, [router]);
+    useEffect(() => {
+        if (error) {
+            void router.push('/login');
+            return;
+        }
+    }, [error, router]);
 
     if (!token || !data) return <div>loading...</div>;
-    if (error) return router.push('/login');
 
     return (
         <>
+            <UpdateTask />
             <Layout>
-                <NewTask />
-                {list.length > 0 ? <TaskList list={list} /> : <div>No tasks</div>}
+                <SimpleBar style={{ height: 'calc(100vh - 100px)' }}>
+                    <NewTask />
+                    {list.length > 0 ? <TaskList list={list} /> : <div>No tasks</div>}
+                </SimpleBar>
             </Layout>
         </>
     );
