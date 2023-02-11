@@ -9,10 +9,8 @@ const Container = styled.div<{ $trigger: boolean }>`
     bottom: 0;
     left: 0;
     padding: 30px;
-    background-color: #ffffff;
-    //width: 200px;
-    height: 120px;
-    font-size: 20px;
+    background-color: transparent;
+    height: 150px;
 
     ${({ $trigger }) =>
         $trigger &&
@@ -23,23 +21,29 @@ const Container = styled.div<{ $trigger: boolean }>`
 `;
 
 const Dialog = styled.div<{ $hide: boolean }>`
-    display: block;
-    //flex-direction: column;
-    //align-items: center;
-    //justify-content: center;
+    display: flex;
+    align-items: center;
+    padding: 20px;
     height: 100%;
-    width: 100%;
+    min-width: 327px;
     transform: translateY(100%);
     background-color: #bc3e3e;
-    transition: all 0.9s ease-in-out;
+    color: #e8c4ad;
+    font-family: 'Akkurat', monospace;
+    font-size: 17px;
+    box-shadow: 0 10px 10px 0 rgba(0, 0, 0, 0.5);
+
     animation: slideIn 0.5s ease-in-out forwards;
+    opacity: 0;
 
     @keyframes slideIn {
         0% {
             transform: translateY(100%);
+            opacity: 0;
         }
         100% {
             transform: translateY(0%);
+            opacity: 1;
         }
     }
 
@@ -47,13 +51,14 @@ const Dialog = styled.div<{ $hide: boolean }>`
         $hide &&
         css`
             animation: slideOut 0.5s ease-in-out forwards;
-        `}
-    @keyframes slideOut {
+        `} @keyframes slideOut {
         0% {
             transform: translateY(0%);
+            opacity: 1;
         }
         100% {
             transform: translateY(100%);
+            opacity: 0;
         }
     }
 `;

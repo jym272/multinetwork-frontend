@@ -23,7 +23,11 @@
 11. bloquear inmediatamente las otras tarjetas cuando le de click a una tarjeta
 12. fecha de ultima modificaciones
 13. resolver max caracteres en pegar
-14. ESC cerrar modal
 15. animación cuando desaparece el modal de dialogo
-16. scrollbar para la edicition de description
 17. color del scrollbar
+18. hacer la misma validacion de description en title
+19. centrar el boton de delete
+19. fecha de ultima edicion y recalcular toda las alturas
+
+
+max chars title 1000, description 10000 o 20000

@@ -8,8 +8,15 @@ import { ScopedMutator } from 'swr/_internal';
 import { useSWRConfig } from 'swr';
 import { isNotAValidKey, isValidString } from '@src/utils/validation';
 import { TASKS } from '@src/utils/constants';
+import SimpleBar from 'simplebar-react';
+import SimpleBarCore from 'simplebar-core';
 
-const { NAME_MAX_LENGTH, DESCRIPTION_MAX_LENGTH, THRESHOLD_CHARS_LEFT_BEFORE_WARNING } = TASKS;
+const {
+    NAME_MAX_LENGTH,
+    DESCRIPTION_MAX_LENGTH,
+    THRESHOLD_CHARS_LEFT_BEFORE_WARNING,
+    UPDATE_TASK_CONTENT_MAX_HEIGHT: maxHeight
+} = TASKS;
 
 const RefContainer = styled.div<{ $show: boolean }>`
     display: flex;
@@ -26,7 +33,6 @@ const RefContainer = styled.div<{ $show: boolean }>`
     left: 50%;
     opacity: 0;
     transition: all 0.4s ease-in-out;
-
     transform: translate(-50%, -50%);
     z-index: -1;
     ${({ $show }) =>
@@ -76,6 +82,7 @@ const Title = styled.div`
     font-weight: 600;
     margin: 10px;
     outline: none;
+    min-height: 24px;
     word-break: break-word;
 `;
 
@@ -84,29 +91,17 @@ const Description = styled.div`
     margin: 10px;
     overflow-wrap: break-word;
     outline: none;
+    min-height: 19px;
     white-space: pre-wrap;
 `;
 
 const OptionsButtons = styled.div`
-    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
     height: 40px;
     width: 100%;
-    opacity: 1;
-    transition: all 0.2s ease-in-out;
-`;
-
-const ThreePointsContainer = styled.div`
-    position: absolute;
-    bottom: 0;
-    top: 0;
-    right: 2%;
-`;
-
-const CloseContainer = styled.div`
-    display: flex;
-    justify-content: flex-start;
-    padding: 10px;
-    background: #172a2a;
 `;
 
 const CloseButton = styled.div`
@@ -116,9 +111,7 @@ const CloseButton = styled.div`
     border-radius: 5px;
     color: #d3fbd8;
     font-size: 14px;
-    padding: 10px 15px;
-    margin-right: 10px;
-    height: 36px;
+    padding: 9px 13px;
     user-select: none;
     font-family: 'Roboto Mono', monospace;
     transition: all 0.2s ease-in-out;
@@ -127,6 +120,24 @@ const CloseButton = styled.div`
         background-color: #d96326;
         color: #fff;
     }
+`;
+
+const BlurredDescription = styled.div<{ $show: boolean }>`
+    background: linear-gradient(transparent, #172a2a);
+    bottom: -1%;
+    height: 3.5%;
+    position: absolute;
+    visibility: hidden;
+    width: 100%;
+    ${({ $show }) =>
+        $show &&
+        css`
+            visibility: visible;
+        `}
+`;
+
+const Content = styled.div`
+    position: relative;
 `;
 
 export const UpdateTask = () => {
@@ -138,11 +149,13 @@ export const UpdateTask = () => {
     const { task, loaded } = useSelector((state: RootState) => state.updateTask);
     const [menuInOptionsIsOpen, setMenuInOptionsIsOpen] = useState(false);
     const [taskHasBeenDeleted, setTaskHasBeenDeleted] = useState(false);
+    const [showBlurredDescription, setShowBlurredDescription] = useState(false);
 
     const [name, setName] = useState(task.name);
     const [description, setDescription] = useState(task.description);
 
     const ref = useRef<HTMLDivElement>(null);
+    const simpleBarRef = useRef<SimpleBarCore | null>(null);
 
     const updateTaskHandler = useCallback(async () => {
         dispatch(resetAlert());
@@ -198,6 +211,22 @@ export const UpdateTask = () => {
             return;
         }
     }, [name, description, task, router, dispatch, mutate]);
+
+    const listenToEscapeKey = useCallback(
+        async (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                await updateTaskHandler();
+            }
+        },
+        [updateTaskHandler]
+    );
+    useEffect(() => {
+        document.addEventListener('keydown', listenToEscapeKey);
+        return () => {
+            document.removeEventListener('keydown', listenToEscapeKey);
+        };
+    }, [listenToEscapeKey]);
+
     const handleClickOutside = useCallback(
         async (event: MouseEvent) => {
             event.stopPropagation();
@@ -266,9 +295,11 @@ export const UpdateTask = () => {
     );
 
     useEffect(() => {
-        document.addEventListener('paste', pasteEventPreventDefaultActionAndPasteTextOnly);
+        const refDescriptionCurrent = refDescription.current;
+        if (!refDescriptionCurrent) return;
+        refDescriptionCurrent.addEventListener('paste', pasteEventPreventDefaultActionAndPasteTextOnly);
         return () => {
-            document.removeEventListener('paste', pasteEventPreventDefaultActionAndPasteTextOnly);
+            refDescriptionCurrent.removeEventListener('paste', pasteEventPreventDefaultActionAndPasteTextOnly);
         };
     }, [pasteEventPreventDefaultActionAndPasteTextOnly]);
 
@@ -287,6 +318,14 @@ export const UpdateTask = () => {
             refTitleCurrent.removeEventListener('keydown', listenToEnterKeyInTitle);
         };
     }, [listenToEnterKeyInTitle]);
+
+    useEffect(() => {
+        if (!loaded) {
+            setName('');
+            setDescription('');
+        }
+    }, [loaded]);
+
     useEffect(() => {
         if (loaded) {
             const length = description.length;
@@ -322,43 +361,50 @@ export const UpdateTask = () => {
         };
     }, [listenKeys]);
 
+    useEffect(() => {
+        if (!simpleBarRef.current) return;
+        const { height } = simpleBarRef.current.getScrollElement()!.getBoundingClientRect();
+        setShowBlurredDescription(height > maxHeight - 1);
+    }, [description]);
+
     return (
         <Modal $show={loaded}>
             <RefContainer $show={loaded} ref={ref} id="ref_container">
-                <Title
-                    aria-label="title"
-                    aria-multiline={false}
-                    ref={refTitle}
-                    suppressContentEditableWarning={true}
-                    contentEditable={true}
-                    onInput={e => setName(e.currentTarget.innerText)}
-                >
-                    {task.name}
-                </Title>
-                <Description
-                    aria-label="description"
-                    aria-multiline={true}
-                    role="textbox"
-                    spellCheck={true}
-                    ref={refDescription}
-                    suppressContentEditableWarning={true}
-                    contentEditable={true}
-                    onInput={e => setDescription(e.currentTarget.innerText)}
-                >
-                    {task.description}
-                </Description>
+                <Content>
+                    <SimpleBar ref={simpleBarRef} style={{ maxHeight: `${maxHeight}px` }}>
+                        <Title
+                            aria-label="title"
+                            aria-multiline={false}
+                            ref={refTitle}
+                            suppressContentEditableWarning={true}
+                            contentEditable={true}
+                            onInput={e => setName(e.currentTarget.innerText)}
+                        >
+                            {task.name}
+                        </Title>
+                        <Description
+                            aria-label="description"
+                            aria-multiline={true}
+                            role="textbox"
+                            spellCheck={true}
+                            ref={refDescription}
+                            suppressContentEditableWarning={true}
+                            contentEditable={true}
+                            onInput={e => setDescription(e.currentTarget.innerText)}
+                        >
+                            {task.description}
+                        </Description>
+                    </SimpleBar>
+                    <BlurredDescription $show={showBlurredDescription} />
+                </Content>
                 <OptionsButtons>
-                    <CloseContainer>
-                        <CloseButton onClick={updateTaskHandler}>Close</CloseButton>
-                    </CloseContainer>
-                    <ThreePointsContainer>
-                        <ThreePointsMenu
-                            taskId={task.id}
-                            setOpen={setMenuInOptionsIsOpen}
-                            open={menuInOptionsIsOpen}
-                            setTaskHasBeenDeleted={setTaskHasBeenDeleted}
-                        />
-                    </ThreePointsContainer>
+                    <CloseButton onClick={updateTaskHandler}>Close</CloseButton>
+                    <ThreePointsMenu
+                        taskId={task.id}
+                        setOpen={setMenuInOptionsIsOpen}
+                        open={menuInOptionsIsOpen}
+                        setTaskHasBeenDeleted={setTaskHasBeenDeleted}
+                    />
                 </OptionsButtons>
             </RefContainer>
         </Modal>

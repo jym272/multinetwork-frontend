@@ -17,7 +17,7 @@ const setAlertDialog = createSlice({
         },
         resetAlert: state => {
             state.trigger = false;
-            state.message = '';
+            // state.message = '';
         }
     }
 });
