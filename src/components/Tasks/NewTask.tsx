@@ -5,7 +5,8 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { ScopedMutator } from 'swr/_internal';
-
+import { TASKS } from '@src/utils/constants';
+const { NAME_MAX_LENGTH, DESCRIPTION_MAX_LENGTH } = TASKS;
 const Container = styled.div`
     background-color: #172a2a;
     width: 100%;
@@ -135,8 +136,8 @@ export const NewTask = () => {
                         errors={errors}
                         registerOptions={{
                             pattern: {
-                                value: /^[\s\S]{1,1000}$/,
-                                message: 'At least 1 character for the name'
+                                value: new RegExp(`^(?=.{1,${NAME_MAX_LENGTH}}$)(?=.*\\S)`, 's'),
+                                message: `Max ${NAME_MAX_LENGTH} characters for the name`
                             }
                         }}
                     />
@@ -147,8 +148,8 @@ export const NewTask = () => {
                         errors={errors}
                         registerOptions={{
                             pattern: {
-                                value: /^[\s\S]{1,1000}$/,
-                                message: 'At least 1 character for the description'
+                                value: new RegExp(`^(?=.{1,${DESCRIPTION_MAX_LENGTH}}$)(?=.*\\S)`, 's'),
+                                message: `Max ${DESCRIPTION_MAX_LENGTH} characters for the description`
                             }
                         }}
                     />

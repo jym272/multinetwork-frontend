@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import queryDataReducer from '@src/store/reducers/queryDataReducer';
+import setAlertDialogReducer from '@src/store/reducers/setAlertDialogReducer';
 import updateTaskReducer from '@src/store/reducers/updateTaskReducer';
 export const store = configureStore({
     reducer: {
-        queryData: queryDataReducer,
+        setAlertDialog: setAlertDialogReducer,
         updateTask: updateTaskReducer
     }
 });

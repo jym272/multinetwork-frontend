@@ -1,12 +1,15 @@
 import styled, { css } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, downloadTask, RootState } from '@src/store';
+import { AppDispatch, downloadTask, resetAlert, RootState, setAlert } from '@src/store';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Task, ThreePointsMenu } from '@src/components';
 import { ScopedMutator } from 'swr/_internal';
 import { useSWRConfig } from 'swr';
-import { isValidString } from '@src/utils/validation';
+import { isNotAValidKey, isValidString } from '@src/utils/validation';
+import { TASKS } from '@src/utils/constants';
+
+const { NAME_MAX_LENGTH, DESCRIPTION_MAX_LENGTH, THRESHOLD_CHARS_LEFT_BEFORE_WARNING } = TASKS;
 
 const RefContainer = styled.div<{ $show: boolean }>`
     display: flex;
@@ -22,6 +25,7 @@ const RefContainer = styled.div<{ $show: boolean }>`
     top: 45%;
     left: 50%;
     opacity: 0;
+    transition: all 0.4s ease-in-out;
 
     transform: translate(-50%, -50%);
     z-index: -1;
@@ -72,13 +76,15 @@ const Title = styled.div`
     font-weight: 600;
     margin: 10px;
     outline: none;
+    word-break: break-word;
 `;
 
 const Description = styled.div`
     font-size: 16px;
     margin: 10px;
-    word-break: break-word;
+    overflow-wrap: break-word;
     outline: none;
+    white-space: pre-wrap;
 `;
 
 const OptionsButtons = styled.div`
@@ -139,23 +145,35 @@ export const UpdateTask = () => {
     const ref = useRef<HTMLDivElement>(null);
 
     const updateTaskHandler = useCallback(async () => {
-        if (!name || !description || !isValidString(name) || !isValidString(description)) {
-            dispatch(downloadTask(task));
+        dispatch(resetAlert());
+        const localToken = localStorage.getItem('token');
+        if (!localToken) {
+            await router.push('/login');
             return;
         }
         if (name === task.name && description === task.description) {
             dispatch(downloadTask(task));
             return;
         }
-        const localToken = localStorage.getItem('token');
-        if (!localToken) {
-            await router.push('/login');
-            return;
+        let dataName = name;
+        let dataDescription = description;
+        if (!isValidString(name, NAME_MAX_LENGTH)) {
+            dataName = task.name;
+            if (refTitle.current) {
+                refTitle.current.innerHTML = task.name;
+            }
+        }
+
+        if (!isValidString(description, DESCRIPTION_MAX_LENGTH)) {
+            dataDescription = task.description;
+            if (refDescription.current) {
+                refDescription.current.innerHTML = task.description;
+            }
         }
         const data = {
             ...task,
-            name,
-            description
+            name: dataName,
+            description: dataDescription
         };
         const response = await fetch('/api/tasks', {
             method: 'PUT',
@@ -197,6 +215,27 @@ export const UpdateTask = () => {
         };
     }, [handleClickOutside]);
 
+    const listenToEnterKeyInDescription = useCallback(
+        (event: KeyboardEvent) => {
+            if (event.key === 'Enter') {
+                const charLeft = DESCRIPTION_MAX_LENGTH - description.length;
+                if (charLeft === 0) return;
+                document.execCommand('insertLineBreak');
+                event.preventDefault();
+            }
+        },
+        [description.length]
+    );
+
+    useEffect(() => {
+        const refDescriptionCurrent = refDescription.current;
+        if (!refDescriptionCurrent) return;
+        refDescriptionCurrent.addEventListener('keydown', listenToEnterKeyInDescription);
+        return () => {
+            refDescriptionCurrent.removeEventListener('keydown', listenToEnterKeyInDescription);
+        };
+    }, [listenToEnterKeyInDescription]);
+
     useEffect(() => {
         setName(task.name);
         setDescription(task.description);
@@ -205,14 +244,26 @@ export const UpdateTask = () => {
     useEffect(() => {
         if (!taskHasBeenDeleted) return;
         dispatch(downloadTask(task));
+        dispatch(resetAlert());
         setTaskHasBeenDeleted(false);
     }, [dispatch, task, taskHasBeenDeleted]);
 
-    const pasteEventPreventDefaultActionAndPasteTextOnly = useCallback((event: ClipboardEvent) => {
-        event.preventDefault();
-        const text = event.clipboardData?.getData('text/plain');
-        document.execCommand('insertHTML', false, text);
-    }, []);
+    const pasteEventPreventDefaultActionAndPasteTextOnly = useCallback(
+        (event: ClipboardEvent) => {
+            event.preventDefault();
+            const text = event.clipboardData?.getData('text/plain');
+            if (!text) return;
+            const charLeft = DESCRIPTION_MAX_LENGTH - description.length;
+            if (charLeft === 0) return;
+
+            let textToBeCopied = text;
+            if (charLeft < text.length) {
+                textToBeCopied = text.slice(0, charLeft);
+            }
+            document.execCommand('insertHTML', false, textToBeCopied);
+        },
+        [description.length]
+    );
 
     useEffect(() => {
         document.addEventListener('paste', pasteEventPreventDefaultActionAndPasteTextOnly);
@@ -221,22 +272,78 @@ export const UpdateTask = () => {
         };
     }, [pasteEventPreventDefaultActionAndPasteTextOnly]);
 
+    const listenToEnterKeyInTitle = useCallback((event: KeyboardEvent) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            refDescription.current?.focus();
+        }
+    }, []);
+
+    useEffect(() => {
+        const refTitleCurrent = refTitle.current;
+        if (!refTitleCurrent) return;
+        refTitleCurrent.addEventListener('keydown', listenToEnterKeyInTitle);
+        return () => {
+            refTitleCurrent.removeEventListener('keydown', listenToEnterKeyInTitle);
+        };
+    }, [listenToEnterKeyInTitle]);
+    useEffect(() => {
+        if (loaded) {
+            const length = description.length;
+            if (length > DESCRIPTION_MAX_LENGTH - THRESHOLD_CHARS_LEFT_BEFORE_WARNING) {
+                const charLeft = DESCRIPTION_MAX_LENGTH - length;
+                dispatch(
+                    setAlert({
+                        message: `You have ${charLeft} characters left`
+                    })
+                );
+                return;
+            }
+            dispatch(resetAlert());
+        }
+    }, [description, dispatch, loaded]);
+
+    const listenKeys = useCallback(
+        (event: KeyboardEvent) => {
+            if (description.length > DESCRIPTION_MAX_LENGTH - 1 && isNotAValidKey(event.key)) {
+                event.preventDefault();
+                return;
+            }
+        },
+        [description]
+    );
+
+    useEffect(() => {
+        const refDescriptionCurrent = refDescription.current;
+        if (!refDescriptionCurrent) return;
+        refDescriptionCurrent.addEventListener('keydown', listenKeys);
+        return () => {
+            refDescriptionCurrent.removeEventListener('keydown', listenKeys);
+        };
+    }, [listenKeys]);
+
     return (
         <Modal $show={loaded}>
             <RefContainer $show={loaded} ref={ref} id="ref_container">
                 <Title
+                    aria-label="title"
+                    aria-multiline={false}
                     ref={refTitle}
                     suppressContentEditableWarning={true}
                     contentEditable={true}
-                    onInput={e => setName(e.currentTarget.textContent!)}
+                    onInput={e => setName(e.currentTarget.innerText)}
                 >
                     {task.name}
                 </Title>
                 <Description
+                    aria-label="description"
+                    aria-multiline={true}
+                    role="textbox"
+                    spellCheck={true}
                     ref={refDescription}
                     suppressContentEditableWarning={true}
                     contentEditable={true}
-                    onInput={e => setDescription(e.currentTarget.textContent!)}
+                    onInput={e => setDescription(e.currentTarget.innerText)}
                 >
                     {task.description}
                 </Description>

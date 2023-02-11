@@ -1,10 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Task } from '@src/components';
-
-interface TaskState {
-    task: Task;
-    loaded: boolean;
-}
+import { TaskState } from '@src/store';
 
 const initialState: TaskState = {
     task: {
@@ -18,7 +14,7 @@ const initialState: TaskState = {
     loaded: false
 };
 
-export const updateTaskSlice = createSlice({
+const updateTaskSlice = createSlice({
     name: 'updateTask',
     initialState,
     reducers: {

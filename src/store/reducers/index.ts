@@ -1,2 +1,2 @@
-export * from './queryDataReducer';
+export * from './setAlertDialogReducer';
 export * from './updateTaskReducer';

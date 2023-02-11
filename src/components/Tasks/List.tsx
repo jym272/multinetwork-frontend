@@ -16,9 +16,7 @@ export interface Task {
 const ListGridDynamicContainer = styled.div`
     display: grid;
     align-items: baseline;
-    //justify-items: center;
-    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-    grid-auto-flow: row dense;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     grid-gap: 2rem;
     background-color: #172a2a;
     padding: 2rem;

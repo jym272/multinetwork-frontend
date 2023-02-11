@@ -1,9 +1,15 @@
 import { store } from '@src/store';
-import { QueryData } from '@src/types';
+import { Task } from '@src/components';
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
-export interface QueryDataState {
-    data: QueryData[];
+export interface AlertDialogState {
+    trigger: boolean;
+    message: string;
+}
+
+export interface TaskState {
+    task: Task;
+    loaded: boolean;
 }

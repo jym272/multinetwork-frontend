@@ -8,6 +8,22 @@
 5. cuando se le da click al conainer agreagarle un z index superrior para que aparezca por encima de todo
  mientras se realiza la animacion
 
- 6. guardar los saltos de lineas en el texto de la tarea
  7. verificar siempre que el token se encuentre actualizado, de otra manera a login
   o actualizarlo en el backend cada vez que se realiza una operacion importante
+
+
+
+8. make words longer in postgres, work in description for ellipsis and max heigt
+
+9. explicit limits
+
+10. validar token expiracy, acciones como guardar tasks alargan la expiracy???
+
+
+11. bloquear inmediatamente las otras tarjetas cuando le de click a una tarjeta
+12. fecha de ultima modificaciones
+13. resolver max caracteres en pegar
+14. ESC cerrar modal
+15. animación cuando desaparece el modal de dialogo
+16. scrollbar para la edicition de description
+17. color del scrollbar

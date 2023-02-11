@@ -8,7 +8,6 @@ const CardContainer = styled.div<{ $transition: { start: boolean; x: number; y: 
     display: flex;
     flex-direction: column;
     min-width: 270px;
-    //max-width: 270px;
     padding: 3px;
     font-family: 'Roboto Mono', monospace;
     min-height: 110px;
@@ -19,6 +18,7 @@ const CardContainer = styled.div<{ $transition: { start: boolean; x: number; y: 
     transition: all 0.2s ease-in-out;
     position: relative;
     user-select: none;
+    max-height: 450px;
 
     @keyframes widthAnimationCardContainer {
         0% {
@@ -61,13 +61,20 @@ const Title = styled.div`
     font-size: 18px;
     font-weight: 600;
     margin: 10px;
-    word-break: break-word;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 1.2em;
 `;
 
 const Description = styled.div`
+    position: relative;
     font-size: 14px;
     margin: 10px;
-    word-break: break-word;
+    min-height: 1.2em;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    overflow: hidden;
 `;
 
 const getRefContainerTopLeft = () => {
@@ -92,7 +99,7 @@ const ThreePointsContainer = styled.div`
 
 const OptionsButtons = styled.div<{ $show: boolean }>`
     position: relative;
-    height: 40px;
+    min-height: 40px;
     width: 100%;
     opacity: 0;
     visibility: hidden;
@@ -101,6 +108,20 @@ const OptionsButtons = styled.div<{ $show: boolean }>`
         $show &&
         css`
             opacity: 1;
+            visibility: visible;
+        `}
+`;
+
+const BlurredDescription = styled.div<{ $show: boolean }>`
+    background: linear-gradient(transparent, #172a2a);
+    bottom: -1%;
+    height: 8%;
+    position: absolute;
+    visibility: hidden;
+    width: 100%;
+    ${({ $show }) =>
+        $show &&
+        css`
             visibility: visible;
         `}
 `;
@@ -130,8 +151,8 @@ export const TaskComponent = ({ task }: { task: Task }) => {
         if (!ref.current) return;
         const { height } = ref.current.getBoundingClientRect();
         ref.current.style.gridRow = '';
-        if (height > 220) {
-            const spanNumber = Math.floor(height / 110);
+        if (height > 240) {
+            const spanNumber = Math.floor(height / 120);
             setSpan(spanNumber);
             ref.current.style.gridRow = `span ${spanNumber}`;
         }
@@ -166,7 +187,9 @@ export const TaskComponent = ({ task }: { task: Task }) => {
             >
                 <Title>{task.name}</Title>
                 {/*<Divider />*/}
-                <Description>{task.description}</Description>
+                <Description>
+                    {task.description} <BlurredDescription $show={span === 3} />
+                </Description>
                 {/*<p>{task.status}</p>*/}
                 {/*<p>{task.createdAt}</p>*/}
                 {/*<p>{task.updatedAt}</p>*/}

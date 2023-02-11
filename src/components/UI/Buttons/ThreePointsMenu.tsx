@@ -13,7 +13,7 @@ const Menu = styled.div`
     padding: 0.3rem 0;
     white-space: nowrap;
     background-color: #435757;
-    box-shadow: 0 0 10px 0 #000000;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.71);
     z-index: 1;
     @keyframes MenuAnimationAppear {
         from {
