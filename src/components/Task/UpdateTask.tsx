@@ -158,7 +158,8 @@ export const UpdateTask = () => {
     const simpleBarRef = useRef<SimpleBarCore | null>(null);
 
     const updateTaskHandler = useCallback(async () => {
-        dispatch(resetAlert());
+        dispatch(resetAlert({ key: 'description' }));
+        dispatch(resetAlert({ key: 'name' }));
         const localToken = localStorage.getItem('token');
         if (!localToken) {
             await router.push('/login');
@@ -244,28 +245,12 @@ export const UpdateTask = () => {
         };
     }, [handleClickOutside]);
 
-    const listenToEnterKeyInDescription = useCallback(
-        (event: KeyboardEvent) => {
-            if (event.key === 'Enter') {
-                const charLeft = DESCRIPTION_MAX_LENGTH - description.length;
-                if (charLeft === 0) return;
-                document.execCommand('insertLineBreak');
-                event.preventDefault();
-            }
-        },
-        [description.length]
-    );
-
     useEffect(() => {
-        const refDescriptionCurrent = refDescription.current;
-        if (!refDescriptionCurrent) return;
-        refDescriptionCurrent.addEventListener('keydown', listenToEnterKeyInDescription);
-        return () => {
-            refDescriptionCurrent.removeEventListener('keydown', listenToEnterKeyInDescription);
-        };
-    }, [listenToEnterKeyInDescription]);
-
-    useEffect(() => {
+        if (!loaded) {
+            setName('');
+            setDescription('');
+            return;
+        }
         setName(task.name);
         setDescription(task.description);
     }, [task, loaded]);
@@ -273,11 +258,38 @@ export const UpdateTask = () => {
     useEffect(() => {
         if (!taskHasBeenDeleted) return;
         dispatch(downloadTask(task));
-        dispatch(resetAlert());
+        dispatch(resetAlert({ key: 'description' }));
+        dispatch(resetAlert({ key: 'name' }));
         setTaskHasBeenDeleted(false);
     }, [dispatch, task, taskHasBeenDeleted]);
 
-    const pasteEventPreventDefaultActionAndPasteTextOnly = useCallback(
+    const listenPasteInTitle = useCallback(
+        (event: ClipboardEvent) => {
+            event.preventDefault();
+            const text = event.clipboardData?.getData('text/plain');
+            if (!text) return;
+            const charLeft = NAME_MAX_LENGTH - name.length;
+            if (charLeft === 0) return;
+
+            let textToBeCopied = text;
+            if (charLeft < text.length) {
+                textToBeCopied = text.slice(0, charLeft);
+            }
+            document.execCommand('insertHTML', false, textToBeCopied);
+        },
+        [name.length]
+    );
+
+    useEffect(() => {
+        const refTitleCurrent = refTitle.current;
+        if (!refTitleCurrent) return;
+        refTitleCurrent.addEventListener('paste', listenPasteInTitle);
+        return () => {
+            refTitleCurrent.removeEventListener('paste', listenPasteInTitle);
+        };
+    }, [listenPasteInTitle]);
+
+    const listenPasteInDescription = useCallback(
         (event: ClipboardEvent) => {
             event.preventDefault();
             const text = event.clipboardData?.getData('text/plain');
@@ -297,34 +309,11 @@ export const UpdateTask = () => {
     useEffect(() => {
         const refDescriptionCurrent = refDescription.current;
         if (!refDescriptionCurrent) return;
-        refDescriptionCurrent.addEventListener('paste', pasteEventPreventDefaultActionAndPasteTextOnly);
+        refDescriptionCurrent.addEventListener('paste', listenPasteInDescription);
         return () => {
-            refDescriptionCurrent.removeEventListener('paste', pasteEventPreventDefaultActionAndPasteTextOnly);
+            refDescriptionCurrent.removeEventListener('paste', listenPasteInDescription);
         };
-    }, [pasteEventPreventDefaultActionAndPasteTextOnly]);
-
-    const listenToEnterKeyInTitle = useCallback((event: KeyboardEvent) => {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            refDescription.current?.focus();
-        }
-    }, []);
-
-    useEffect(() => {
-        const refTitleCurrent = refTitle.current;
-        if (!refTitleCurrent) return;
-        refTitleCurrent.addEventListener('keydown', listenToEnterKeyInTitle);
-        return () => {
-            refTitleCurrent.removeEventListener('keydown', listenToEnterKeyInTitle);
-        };
-    }, [listenToEnterKeyInTitle]);
-
-    useEffect(() => {
-        if (!loaded) {
-            setName('');
-            setDescription('');
-        }
-    }, [loaded]);
+    }, [listenPasteInDescription]);
 
     useEffect(() => {
         if (loaded) {
@@ -333,20 +322,42 @@ export const UpdateTask = () => {
                 const charLeft = DESCRIPTION_MAX_LENGTH - length;
                 dispatch(
                     setAlert({
-                        message: `You have ${charLeft} characters left`
+                        message: `You have ${charLeft} characters left`,
+                        key: 'description'
                     })
                 );
                 return;
             }
-            dispatch(resetAlert());
+            dispatch(resetAlert({ key: 'description' }));
         }
     }, [description, dispatch, loaded]);
 
-    const listenKeys = useCallback(
+    useEffect(() => {
+        if (loaded) {
+            const length = name.length;
+            if (length > NAME_MAX_LENGTH - THRESHOLD_CHARS_LEFT_BEFORE_WARNING) {
+                const charLeft = NAME_MAX_LENGTH - length;
+                dispatch(
+                    setAlert({
+                        message: `You have ${charLeft} characters left`,
+                        key: 'name'
+                    })
+                );
+                return;
+            }
+            dispatch(resetAlert({ key: 'name' }));
+        }
+    }, [name, dispatch, loaded]);
+
+    const listenDescriptionKeys = useCallback(
         (event: KeyboardEvent) => {
             if (description.length > DESCRIPTION_MAX_LENGTH - 1 && isNotAValidKey(event.key)) {
                 event.preventDefault();
                 return;
+            }
+            if (event.key === 'Enter') {
+                document.execCommand('insertLineBreak');
+                event.preventDefault();
             }
         },
         [description]
@@ -355,11 +366,34 @@ export const UpdateTask = () => {
     useEffect(() => {
         const refDescriptionCurrent = refDescription.current;
         if (!refDescriptionCurrent) return;
-        refDescriptionCurrent.addEventListener('keydown', listenKeys);
+        refDescriptionCurrent.addEventListener('keydown', listenDescriptionKeys);
         return () => {
-            refDescriptionCurrent.removeEventListener('keydown', listenKeys);
+            refDescriptionCurrent.removeEventListener('keydown', listenDescriptionKeys);
         };
-    }, [listenKeys]);
+    }, [listenDescriptionKeys]);
+
+    const listenTitleKeys = useCallback(
+        (event: KeyboardEvent) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                refDescription.current?.focus();
+                return;
+            }
+            if (name.length > NAME_MAX_LENGTH - 1 && isNotAValidKey(event.key)) {
+                event.preventDefault();
+            }
+        },
+        [name]
+    );
+
+    useEffect(() => {
+        const refTitleCurrent = refTitle.current;
+        if (!refTitleCurrent) return;
+        refTitleCurrent.addEventListener('keydown', listenTitleKeys);
+        return () => {
+            refTitleCurrent.removeEventListener('keydown', listenTitleKeys);
+        };
+    }, [listenTitleKeys]);
 
     useEffect(() => {
         if (!simpleBarRef.current) return;

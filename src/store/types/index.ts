@@ -7,6 +7,7 @@ export type AppDispatch = typeof store.dispatch;
 export interface AlertDialogState {
     trigger: boolean;
     message: string;
+    key: string;
 }
 
 export interface TaskState {

@@ -1,16 +1,17 @@
 import styled, { css } from 'styled-components';
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '@src/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AlertDialogState, AppDispatch, deleteAlert, RootState } from '@src/store';
 
-const Container = styled.div<{ $trigger: boolean }>`
+const Container = styled.div<{ $trigger: boolean; $position: number }>`
     display: none;
     position: fixed;
-    bottom: 0;
+    bottom: ${({ $position }) => $position}%;
     left: 0;
     padding: 30px;
     background-color: transparent;
     height: 150px;
+    transition: all 0.25s ease-out;
 
     ${({ $trigger }) =>
         $trigger &&
@@ -63,11 +64,11 @@ const Dialog = styled.div<{ $hide: boolean }>`
     }
 `;
 
-export const AlertDialog = () => {
-    const { message, trigger: triggerAlertDialog } = useSelector((state: RootState) => state.setAlertDialog);
-
+const NewAlert = ({ alert, index }: { alert: AlertDialogState; index: number }) => {
+    const { message, trigger: triggerAlertDialog, key } = alert;
     const [trigger, setTrigger] = useState(false);
     const [hideDialog, setHideDialog] = useState(false);
+    const dispatch: AppDispatch = useDispatch();
 
     useEffect(() => {
         if (triggerAlertDialog) {
@@ -82,17 +83,33 @@ export const AlertDialog = () => {
             timeout = setTimeout(() => {
                 setTrigger(false);
                 setHideDialog(false);
+                dispatch(deleteAlert({ key }));
             }, 500);
         }
         return () => {
             clearTimeout(timeout);
             setHideDialog(false);
         };
-    }, [trigger, triggerAlertDialog]);
+    }, [key, dispatch, trigger, triggerAlertDialog]);
 
     return (
         <>
-            <Container $trigger={trigger}>{trigger && <Dialog $hide={hideDialog}>{message}</Dialog>}</Container>
+            <Container $position={10 * index} $trigger={trigger}>
+                {trigger && <Dialog $hide={hideDialog}>{message}</Dialog>}
+            </Container>
+        </>
+    );
+};
+
+export const AlertDialog = () => {
+    //TODO: animations style 'google keep' for handling different alerts
+    const { alerts } = useSelector((state: RootState) => state.setAlertDialog);
+
+    return (
+        <>
+            {alerts.map((alert, index) => {
+                return <NewAlert key={alert.key} alert={alert} index={index} />;
+            })}
         </>
     );
 };
