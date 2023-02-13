@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { tasksApiUrl } from '@src/utils';
-import { Task } from '@src/components';
+import { Task } from '@src/types';
 
 type TasksRoute = 'new-task' | 'update-task' | 'delete-task' | 'get-all';
 

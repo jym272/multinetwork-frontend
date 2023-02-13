@@ -1,13 +1,13 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { ScopedMutator } from 'swr/_internal';
-import { Task } from '@src/components';
 import { useSWRConfig } from 'swr';
 import { useRouter } from 'next/router';
+import { Task } from '@src/types';
 
 const Menu = styled.div`
     position: absolute;
-    top: 100%;
+    top: 110%;
     left: 50%;
     font-size: 14px;
     padding: 0.3rem 0;
@@ -66,6 +66,10 @@ const ThreePoints = styled.div`
     }
 `;
 
+const Container = styled.div`
+    position: relative;
+`;
+
 export const ThreePointsMenu = ({
     taskId,
     open,
@@ -107,7 +111,9 @@ export const ThreePointsMenu = ({
                     }
                 });
             }, 500);
+            return;
         }
+        await router.push('/login');
     };
 
     const threePointsClickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -139,7 +145,7 @@ export const ThreePointsMenu = ({
         };
     }, [handleClickOutside]);
     return (
-        <>
+        <Container>
             <ThreePoints onClick={threePointsClickHandler}>
                 <div />
                 <div />
@@ -148,9 +154,8 @@ export const ThreePointsMenu = ({
             {open && (
                 <Menu ref={ref}>
                     <MenuItem onClick={menuItemDeleteTaskHandler}>Delete task</MenuItem>
-                    {/*<MenuItem onClick={menuItemClickHandler}>Delete tas asd asd asdk</MenuItem>*/}
                 </Menu>
             )}
-        </>
+        </Container>
     );
 };

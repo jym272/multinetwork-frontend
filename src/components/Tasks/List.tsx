@@ -3,15 +3,7 @@ import styled from 'styled-components';
 import { TaskComponent } from '@src/components';
 import { useSelector } from 'react-redux';
 import { RootState } from '@src/store';
-
-export interface Task {
-    id: number;
-    name: string;
-    description: string;
-    status: string;
-    createdAt: string;
-    updatedAt: string;
-}
+import { Task } from '@src/types';
 
 const ListGridDynamicContainer = styled.div`
     display: grid;

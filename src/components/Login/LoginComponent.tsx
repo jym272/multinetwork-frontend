@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { InputLoginComponent } from '@src/components';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useRouter } from 'next/router';
+import { LoginInputs } from '@src/types';
 
 const Container = styled.div`
     display: flex;
@@ -248,11 +249,6 @@ const ServerError = styled.div`
     color: #ff0000;
     font-family: 'Ubuntu Mono', monospace;
 `;
-
-export interface LoginInputs {
-    email: string;
-    password: string;
-}
 
 export const LoginComponent = () => {
     const router = useRouter();

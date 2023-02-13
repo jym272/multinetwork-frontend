@@ -3,13 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, downloadTask, resetAlert, RootState, setAlert } from '@src/store';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Task, ThreePointsMenu } from '@src/components';
+import { ThreePointsMenu } from '@src/components';
 import { ScopedMutator } from 'swr/_internal';
 import { useSWRConfig } from 'swr';
 import { isNotAValidKey, isValidString } from '@src/utils/validation';
 import { TASKS } from '@src/utils/constants';
 import SimpleBar from 'simplebar-react';
 import SimpleBarCore from 'simplebar-core';
+import { Task } from '@src/types';
 
 const {
     NAME_MAX_LENGTH,
@@ -32,24 +33,15 @@ const RefContainer = styled.div<{ $show: boolean }>`
     top: 45%;
     left: 50%;
     opacity: 0;
-    transition: all 0.4s ease-in-out;
     transform: translate(-50%, -50%);
     z-index: -1;
     ${({ $show }) =>
         $show &&
         css`
             background-color: #172a2a;
-            transition: all 0.4s ease-in-out;
+            transition: all 0.3s ease-in-out;
             opacity: 1;
             z-index: 1;
-        `}
-    ${({ $show }) =>
-        !$show &&
-        css`
-            background-color: rgba(255, 255, 255, 0.9);
-            transition: all 0.2s ease-in-out;
-            opacity: 0;
-            z-index: -1;
         `}
 `;
 
@@ -81,6 +73,7 @@ const Title = styled.div`
     font-size: 20px;
     font-weight: 600;
     margin: 10px;
+    padding-bottom: 10px;
     outline: none;
     min-height: 24px;
     word-break: break-word;
@@ -138,7 +131,38 @@ const BlurredDescription = styled.div<{ $show: boolean }>`
 
 const Content = styled.div`
     position: relative;
+    .simplebar-scrollbar::before {
+        background: rgba(67, 87, 87, 0.91);
+        border-radius: 0;
+    }
 `;
+
+const Information = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    font-size: 12px;
+    align-items: center;
+    margin: 20px 19px 20px 10px;
+`;
+
+const parseDateTime = (date: string) => {
+    const dateObj = new Date(date);
+    const hours = dateObj.getHours();
+    const minutes = dateObj.getMinutes() < 10 ? `0${dateObj.getMinutes()}` : dateObj.getMinutes();
+    const seconds = dateObj.getSeconds() < 10 ? `0${dateObj.getSeconds()}` : dateObj.getSeconds();
+
+    if (new Date().toDateString() === dateObj.toDateString()) {
+        return `${hours}:${minutes}:${seconds}`;
+    }
+    const day = dateObj.getDate();
+    const month = dateObj.toLocaleString('default', { month: 'short' });
+
+    if (new Date().getFullYear() === dateObj.getFullYear()) {
+        return `${day} ${month}`;
+    }
+    const year = dateObj.getFullYear();
+    return `${day} ${month} ${year}`;
+};
 
 export const UpdateTask = () => {
     const dispatch: AppDispatch = useDispatch();
@@ -211,6 +235,7 @@ export const UpdateTask = () => {
             });
             return;
         }
+        await router.push('/login');
     }, [name, description, task, router, dispatch, mutate]);
 
     const listenToEscapeKey = useCallback(
@@ -318,7 +343,7 @@ export const UpdateTask = () => {
     useEffect(() => {
         if (loaded) {
             const length = description.length;
-            if (length > DESCRIPTION_MAX_LENGTH - THRESHOLD_CHARS_LEFT_BEFORE_WARNING) {
+            if (length > DESCRIPTION_MAX_LENGTH - THRESHOLD_CHARS_LEFT_BEFORE_WARNING * 2) {
                 const charLeft = DESCRIPTION_MAX_LENGTH - length;
                 dispatch(
                     setAlert({
@@ -428,6 +453,7 @@ export const UpdateTask = () => {
                         >
                             {task.description}
                         </Description>
+                        <Information>Last Edition: {parseDateTime(task.updatedAt)}</Information>
                     </SimpleBar>
                     <BlurredDescription $show={showBlurredDescription} />
                 </Content>

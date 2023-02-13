@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { AlertDialog, Layout, NewTask, Task, TaskList, UpdateTask } from '@src/components';
+import { AlertDialog, Layout, NewTask, TaskList, UpdateTask } from '@src/components';
 import useSWR, { Fetcher } from 'swr';
 import { useRouter } from 'next/router';
 
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
 import styled from 'styled-components';
+import { Task } from '@src/types';
 
 const fetchWithToken = async (url: string, token: string) => {
     const res = await fetch(url, {
@@ -77,6 +78,7 @@ const Task = () => {
     }, [router]);
     useEffect(() => {
         if (error) {
+            localStorage.removeItem('token');
             void router.push('/login');
             return;
         }

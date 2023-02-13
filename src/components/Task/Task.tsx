@@ -1,8 +1,9 @@
-import { Task, ThreePointsMenu } from '@src/components';
+import { ThreePointsMenu } from '@src/components';
 import styled, { css } from 'styled-components';
 import { useEffect, useRef, useState } from 'react';
 import { AppDispatch, loadTask, RootState } from '@src/store';
 import { useDispatch, useSelector } from 'react-redux';
+import { Task } from '@src/types';
 
 const CardContainer = styled.div<{ $transition: { start: boolean; x: number; y: number }; $fadeCard: boolean }>`
     display: flex;
@@ -33,12 +34,8 @@ const CardContainer = styled.div<{ $transition: { start: boolean; x: number; y: 
         $transition.start &&
         css`
             transform: translate(${`${$transition.x}px`}, ${`${$transition.y}px`});
-
-            //width: 500px;
-            //animation: widthAnimationCardContainer 0.2s ease-in-out forwards;
-
-            z-index: 1; // high
-            opacity: 1;
+            z-index: 1;
+            opacity: 0;
         `}
 
     @keyframes cardContainerFadeOut {
@@ -159,27 +156,21 @@ export const TaskComponent = ({ task }: { task: Task }) => {
     }, [loaded]);
 
     const startTransition = () => {
-        const { topRef, leftRef } = getRefContainerTopLeft();
-        const { top, left } = getCardContainerTopLeft(ref);
-        const x = leftRef - left;
-        const y = topRef - top;
-        setTransition({ start: true, x, y });
         dispatch(loadTask({ task, loaded: true }));
-    };
-
-    const mouseEnterHandler = () => {
-        setShowOptions(true);
-    };
-
-    const mouseLeaveHandler = () => {
-        setShowOptions(false);
+        setTimeout(() => {
+            const { topRef, leftRef } = getRefContainerTopLeft();
+            const { top, left } = getCardContainerTopLeft(ref);
+            const x = leftRef - left;
+            const y = topRef - top;
+            setTransition({ start: true, x, y });
+        }, 25);
     };
 
     return (
         <>
             <CardContainer
-                onMouseEnter={mouseEnterHandler}
-                onMouseLeave={mouseLeaveHandler}
+                onMouseEnter={() => setShowOptions(true)}
+                onMouseLeave={() => setShowOptions(false)}
                 ref={ref}
                 $fadeCard={taskHasBeenDeleted}
                 $transition={transition}
@@ -190,12 +181,6 @@ export const TaskComponent = ({ task }: { task: Task }) => {
                 <Description>
                     {task.description} <BlurredDescription $show={span === 3} />
                 </Description>
-                {/*<p>{task.status}</p>*/}
-                {/*<p>{task.createdAt}</p>*/}
-                {/*<p>{task.updatedAt}</p>*/}
-                {/*<DeleteButtonContainer onClick={() => deleteTaskHandler(task.id)}>*/}
-                {/*    <CrossDeleteButton />*/}
-                {/*</DeleteButtonContainer>*/}
                 <OptionsButtons $show={showOptions || menuInOptionsIsOpen}>
                     <ThreePointsContainer>
                         <ThreePointsMenu
@@ -204,9 +189,7 @@ export const TaskComponent = ({ task }: { task: Task }) => {
                             open={menuInOptionsIsOpen}
                             setTaskHasBeenDeleted={setTaskHasBeenDeleted}
                         />
-                        {/*{spanNumber}*/}
                     </ThreePointsContainer>
-                    {span} {task.id}
                 </OptionsButtons>
             </CardContainer>
         </>

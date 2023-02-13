@@ -8,10 +8,9 @@ const LayoutContainer = styled.div`
     width: 100vw;
     background-color: #172a2a;
     position: relative;
-    .simplebar-content-wrapper {
-        //border-right: 1px solid #435757;
-        //display: grid;
-        padding-right: 0 !important;
+    .simplebar-scrollbar::before {
+        background: rgba(67, 87, 87, 0.91);
+        border-radius: 0;
     }
 `;
 

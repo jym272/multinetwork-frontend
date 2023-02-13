@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
 import { useEffect, useState } from 'react';
 import { Control, FieldErrors, RegisterOptions, UseFormRegister, useWatch } from 'react-hook-form';
-import { LoginInputs } from '@src/components';
+import { LoginInputs } from '@src/types';
 
 const InputContainer = styled.div`
     display: flex;

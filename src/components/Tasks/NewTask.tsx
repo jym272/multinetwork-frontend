@@ -1,11 +1,12 @@
 import { useSWRConfig } from 'swr';
-import { InputTaskComponent, Task } from '@src/components';
+import { InputTaskComponent } from '@src/components';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import { ScopedMutator } from 'swr/_internal';
 import { TASKS } from '@src/utils/constants';
+import { Task, TaskInputs } from '@src/types';
 const { NAME_MAX_LENGTH, DESCRIPTION_MAX_LENGTH } = TASKS;
 const Container = styled.div`
     background-color: #172a2a;
@@ -65,11 +66,6 @@ const ServerError = styled.div`
     color: #ef6c1e;
     font-family: 'Ubuntu Mono', monospace;
 `;
-
-export interface TaskInputs {
-    name: string;
-    description: string;
-}
 
 export const NewTask = () => {
     const {

@@ -1,8 +1,17 @@
-interface Data {
+export interface Task {
     id: number;
+    name: string;
+    description: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
-// TODO: refactor this is wront, what is the actual type
-export interface PostData extends Data {
-    title: string;
+export interface LoginInputs {
+    email: string;
+    password: string;
+}
+export interface TaskInputs {
+    name: string;
+    description: string;
 }

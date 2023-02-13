@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { usersApiUrl } from '@src/utils';
-import { PostData } from '@src/types';
 
 export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const route = req.headers['users-route'] as 'login' | 'signup';
@@ -12,7 +11,7 @@ export const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         },
         body: JSON.stringify(req.body)
     });
-    const data = (await response.json()) as PostData;
+    const data = (await response.json()) as { message: string } | { token: string };
     const statusCode = response.status;
     res.status(statusCode).json(data);
 };
