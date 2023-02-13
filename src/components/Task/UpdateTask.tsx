@@ -77,6 +77,7 @@ const Title = styled.div`
     outline: none;
     min-height: 24px;
     word-break: break-word;
+    line-height: 1.8rem;
 `;
 
 const Description = styled.div`

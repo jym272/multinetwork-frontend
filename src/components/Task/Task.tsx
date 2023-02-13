@@ -72,6 +72,7 @@ const Description = styled.div`
     overflow-wrap: break-word;
     white-space: pre-wrap;
     overflow: hidden;
+    line-height: 1.2rem;
 `;
 
 const getRefContainerTopLeft = () => {
