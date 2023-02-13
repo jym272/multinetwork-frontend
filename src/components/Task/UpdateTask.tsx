@@ -86,6 +86,7 @@ const Description = styled.div`
     outline: none;
     min-height: 19px;
     white-space: pre-wrap;
+    line-height: 1.5rem;
 `;
 
 const OptionsButtons = styled.div`
