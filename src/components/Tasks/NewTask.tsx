@@ -12,7 +12,8 @@ const Container = styled.div`
     background-color: #172a2a;
     width: 100%;
     display: flex;
-    margin-top: 10px;
+    align-items: center;
+    height: 200px;
     justify-content: center;
 `;
 

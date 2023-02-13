@@ -91,7 +91,7 @@ const Task = () => {
             <AlertDialog />
             <UpdateTask />
             <Layout>
-                <SimpleBar style={{ height: 'calc(100vh - 100px)' }}>
+                <SimpleBar style={{ height: '100%' }}>
                     <NewTask />
                     {list.length > 0 ? <TaskList list={list} /> : <EmptyList>No tasks</EmptyList>}
                 </SimpleBar>

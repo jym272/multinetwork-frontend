@@ -12,6 +12,9 @@ const LayoutContainer = styled.div`
         background: rgba(67, 87, 87, 0.91);
         border-radius: 0;
     }
+    .simplebar-content-wrapper {
+        outline: none;
+    }
 `;
 
 const LogoutContainer = styled.div`
@@ -19,6 +22,7 @@ const LogoutContainer = styled.div`
     justify-content: flex-end;
     padding: 10px;
     background: #172a2a;
+    height: 56px;
 `;
 
 const LogoutButton = styled.div`
@@ -31,7 +35,6 @@ const LogoutButton = styled.div`
     padding: 10px 15px;
     margin-right: 10px;
     box-shadow: 0 0 3px 0 #000000;
-    height: 36px;
     user-select: none;
     font-family: 'Roboto Mono', monospace;
     transition: all 0.3s ease-in-out;
@@ -40,6 +43,10 @@ const LogoutButton = styled.div`
         background-color: #d96326;
         color: #fff;
     }
+`;
+
+const ChildrenContainer = styled.div`
+    height: calc(100vh - 56px);
 `;
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -53,7 +60,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
             <LogoutContainer>
                 <LogoutButton onClick={logoutHandler}>Logout</LogoutButton>
             </LogoutContainer>
-            {children}
+            <ChildrenContainer>{children}</ChildrenContainer>
         </LayoutContainer>
     );
 };
