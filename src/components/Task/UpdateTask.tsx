@@ -135,6 +135,9 @@ const Content = styled.div`
         background: rgba(67, 87, 87, 0.91);
         border-radius: 0;
     }
+    .simplebar-content-wrapper {
+        outline: none;
+    }
 `;
 
 const Information = styled.div`
@@ -278,6 +281,7 @@ export const UpdateTask = () => {
         }
         setName(task.name);
         setDescription(task.description);
+        refDescription.current?.focus();
     }, [task, loaded]);
 
     useEffect(() => {
