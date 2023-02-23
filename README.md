@@ -1,6 +1,6 @@
 ### Multinetwork Frontend
 
-Part of multinetwork project(add url)
+#### Part of [multinetwork project](https://github.com/jym272/multinetwork-k8s)
 
 #### This project needs an `.env` file in the root directory with the following:
 
