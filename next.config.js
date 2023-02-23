@@ -5,7 +5,7 @@ const nextConfig = {
             {
                 source: '/',
                 destination: '/tasks',
-                permanent: true
+                permanent: false
             }
         ];
     },
